@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 
 export default function Home() {
@@ -8,21 +9,10 @@ export default function Home() {
         <p className="max-w-md text-lg text-muted-foreground">
           Hi, I&apos;m xin. Building things on the web.
         </p>
-        <div className="flex gap-3">
-          <a
-            href="https://github.com/"
-            target="_blank"
-            rel="noreferrer"
-            className={buttonVariants({ size: "lg" })}
-          >
-            GitHub
-          </a>
-          <a
-            href="mailto:schimekkosman@gmail.com"
-            className={buttonVariants({ variant: "outline", size: "lg" })}
-          >
-            Email
-          </a>
+        <div className="flex justify-center">
+          <Link href="/fitness" className={buttonVariants({ size: "lg" })}>
+            训练计划
+          </Link>
         </div>
       </div>
     </main>
