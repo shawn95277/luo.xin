@@ -11,6 +11,7 @@ import {
   Target,
   Clock,
   ChevronDown,
+  AlertCircle,
 } from "lucide-react";
 
 export const metadata = {
@@ -419,6 +420,72 @@ const timeline = [
   { week: "WEEK 12", change: "接近目标", detail: "体重和体脂同步下降" },
 ];
 
+const warmupUpper = [
+  {
+    step: "1",
+    title: "动态热身",
+    duration: "2 min",
+    desc: "开合跳 / 原地踏步，心率拉到 110-130",
+  },
+  {
+    step: "2",
+    title: "肩袖外旋",
+    duration: "1 min",
+    desc: "弹力带绕住双手、拉开外旋 2 × 15，保护肩袖",
+  },
+  {
+    step: "3",
+    title: "胸椎旋转",
+    duration: "1 min",
+    desc: "跪姿穿针 8 次 / 边，松动胸椎",
+  },
+  {
+    step: "4",
+    title: "肩胛激活",
+    duration: "1 min",
+    desc: "YTW 各 8 次（弹力带或徒手），唤醒后链",
+  },
+  {
+    step: "5",
+    title: "主项渐进组",
+    duration: "2 min",
+    desc: "空杆 → 50% → 70% → 100%",
+  },
+];
+
+const warmupLower = [
+  {
+    step: "1",
+    title: "动态热身",
+    duration: "2 min",
+    desc: "开合跳 / 高抬腿，心率拉到 110-130",
+  },
+  {
+    step: "2",
+    title: "泡沫轴放松",
+    duration: "3 min",
+    desc: "大腿外侧、股四头、腘绳各 60s / 边（无泡沫轴用网球代替）",
+  },
+  {
+    step: "3",
+    title: "臀肌激活",
+    duration: "1 min",
+    desc: "弹力带螃蟹走 2 × 15 步 / 边 + 蚌式 15 次 / 边",
+  },
+  {
+    step: "4",
+    title: "髋 & 踝松动",
+    duration: "1 min",
+    desc: "鸽子式 60s / 边、弓步推膝过脚尖 10 次 / 边",
+  },
+  {
+    step: "5",
+    title: "主项渐进组",
+    duration: "2 min",
+    desc: "空杆 → 50% → 70% → 100%",
+  },
+];
+
 export default function FitnessPage() {
   return (
     <div className="min-h-screen bg-background">
@@ -486,7 +553,40 @@ export default function FitnessPage() {
           </Note>
         </Section>
 
-        <Section number="02" title="饮食" subtitle="90% 决定减脂">
+        <Section number="02" title="热身" subtitle="练前 8 分钟，省下未来的伤">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <WarmupColumn
+              tag="上肢日"
+              days="周一 / 周四"
+              steps={warmupUpper}
+            />
+            <WarmupColumn
+              tag="下肢日"
+              days="周二 / 周五"
+              steps={warmupLower}
+            />
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-orange-500/30 bg-orange-500/5 p-5">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="size-5 shrink-0 text-orange-500" />
+              <div className="text-sm">
+                <div className="font-semibold">膝盖深蹲弹响怎么办</div>
+                <p className="mt-1 text-muted-foreground">
+                  膝盖外侧（尤其单边）的弹响多为髂胫束滑过股骨外髁，
+                  <span className="text-foreground">不疼即良性</span>
+                  。多滚大腿外侧 + 激活臀中肌 + 拉髋，2-3 周通常显著改善。
+                </p>
+                <p className="mt-2 text-muted-foreground">
+                  <span className="text-foreground">红线：</span>
+                  弹响伴疼痛 / 肿胀 / 突然腿软 / 卡住动不了 → 立即停训找康复师。
+                </p>
+              </div>
+            </div>
+          </div>
+        </Section>
+
+        <Section number="03" title="饮食" subtitle="90% 决定减脂">
           <div className="grid gap-4 sm:grid-cols-4">
             {macros.map((m) => (
               <div
@@ -524,7 +624,7 @@ export default function FitnessPage() {
           </Note>
         </Section>
 
-        <Section number="03" title="日常" subtitle="被严重低估的部分">
+        <Section number="04" title="日常" subtitle="被严重低估的部分">
           <div className="grid gap-3 sm:grid-cols-2">
             {habits.map((h) => (
               <div
@@ -548,7 +648,7 @@ export default function FitnessPage() {
           </div>
         </Section>
 
-        <Section number="04" title="预期" subtitle="12 周节奏">
+        <Section number="05" title="预期" subtitle="12 周节奏">
           <div className="space-y-3">
             {timeline.map((t, i) => (
               <div
@@ -586,6 +686,57 @@ export default function FitnessPage() {
           坚持是唯一的捷径
         </footer>
       </div>
+    </div>
+  );
+}
+
+type WarmupStep = {
+  step: string;
+  title: string;
+  duration: string;
+  desc: string;
+};
+
+function WarmupColumn({
+  tag,
+  days,
+  steps,
+}: {
+  tag: string;
+  days: string;
+  steps: WarmupStep[];
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="mb-4 flex items-baseline justify-between">
+        <div>
+          <div className="font-mono text-xs tracking-widest text-muted-foreground">
+            {tag.toUpperCase()}
+          </div>
+          <div className="mt-0.5 text-lg font-bold">{tag}</div>
+        </div>
+        <span className="text-xs text-muted-foreground">{days}</span>
+      </div>
+      <ol className="space-y-2.5">
+        {steps.map((s) => (
+          <li key={s.step} className="flex items-start gap-3">
+            <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md bg-orange-500/10 font-mono text-[11px] font-bold text-orange-500">
+              {s.step}
+            </div>
+            <div className="flex-1">
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="text-sm font-semibold">{s.title}</span>
+                <span className="shrink-0 font-mono text-[11px] text-muted-foreground">
+                  {s.duration}
+                </span>
+              </div>
+              <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                {s.desc}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }
