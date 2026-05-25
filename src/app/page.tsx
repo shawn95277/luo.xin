@@ -9,9 +9,15 @@ export default function Home() {
         <p className="max-w-md text-lg text-muted-foreground">
           Hi, I&apos;m xin. Building things on the web.
         </p>
-        <div className="flex justify-center">
+        <div className="flex flex-wrap justify-center gap-3">
           <Link href="/fitness" className={buttonVariants({ size: "lg" })}>
             训练计划
+          </Link>
+          <Link
+            href="/finance"
+            className={buttonVariants({ size: "lg", variant: "outline" })}
+          >
+            盘后笔记
           </Link>
         </div>
       </div>
