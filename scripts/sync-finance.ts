@@ -146,6 +146,21 @@ function validateTomorrowFocus(
   return errs;
 }
 
+function validatePeers(filename: string, raw: unknown[]): ValidationError[] {
+  const errs: ValidationError[] = [];
+  for (const [i, v] of raw.entries()) {
+    const parts = String(v).split("|").map((x) => x.trim());
+    if (!parts[0] || !parts[1] || !parts[2] || !parts[3]) {
+      errs.push({
+        file: filename,
+        field: `peers[${i}]`,
+        message: `期望 "股票代码 | 名称 | 关系 | 观察用途"，当前 "${v}"`,
+      });
+    }
+  }
+  return errs;
+}
+
 function normalizeLinks(rawLinks: unknown[]): string[] {
   // 把 "—" / "none" 归一成空字符串，DB 端只存 URL 或空
   return rawLinks.map((raw) => {
@@ -160,6 +175,8 @@ function normalizeLinks(rawLinks: unknown[]): string[] {
 }
 
 async function syncEntities(sql: ReturnType<typeof neon<false, false>>) {
+  await sql`ALTER TABLE entities ADD COLUMN IF NOT EXISTS peers TEXT[] NOT NULL DEFAULT '{}'`;
+
   const docs = await readMarkdownDocs(path.join(NOTES_DIR, "wiki/entities"));
   let n = 0;
   for (const { data } of docs) {
@@ -171,13 +188,14 @@ async function syncEntities(sql: ReturnType<typeof neon<false, false>>) {
         ticker, name, exchange, status,
         price, change_pct, pe_ttm, pct,
         upper_bound, lower_bound,
-        thesis, catalysts, risks, metrics, levels, links,
+        thesis, peers, catalysts, risks, metrics, levels, links,
         updated_at
       ) VALUES (
         ${ticker}, ${String(data.title ?? ticker)}, ${data.exchange ?? null}, ${String(data.status ?? "观察")},
         ${num(data.price)}, ${data.change ?? null}, ${num(data.pe_ttm)}, ${num(data.pct)},
         ${num(data.upper)}, ${num(data.lower)},
         ${String(data.thesis ?? "").trim()},
+        ${arr(data.peers)},
         ${arr(data.catalysts)}, ${arr(data.risks)}, ${arr(data.metrics)}, ${arr(data.levels)}, ${normalizeLinks(arr(data.links))},
         ${dateStr(data.updated)}
       )
@@ -192,6 +210,7 @@ async function syncEntities(sql: ReturnType<typeof neon<false, false>>) {
         upper_bound = EXCLUDED.upper_bound,
         lower_bound = EXCLUDED.lower_bound,
         thesis = EXCLUDED.thesis,
+        peers = EXCLUDED.peers,
         catalysts = EXCLUDED.catalysts,
         risks = EXCLUDED.risks,
         metrics = EXCLUDED.metrics,
@@ -261,6 +280,7 @@ async function validateAll(): Promise<ValidationError[]> {
     errs.push(...validateLinks(filename, arr(data.links)));
     errs.push(...validateMetrics(filename, arr(data.metrics)));
     errs.push(...validateLevels(filename, arr(data.levels)));
+    errs.push(...validatePeers(filename, arr(data.peers)));
   }
   const reviewDocs = await readMarkdownDocs(path.join(NOTES_DIR, "wiki/reviews"));
   for (const { filename, data } of reviewDocs) {

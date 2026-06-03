@@ -48,11 +48,19 @@ export type Entity = {
   trend: Trend;
   status: Status;
   thesis: string;
+  peers: Peer[];
   metrics: { label: string; value: string }[];
   levels: { label: string; value: string; type: "上方" | "下方" }[];
   catalysts: string[];
   risks: string[];
   links: { label: string; date: string; url: string }[];
+};
+
+export type Peer = {
+  code: string;
+  name: string;
+  relation: string;
+  note: string;
 };
 
 export type Focus = {
@@ -69,6 +77,13 @@ export function parseFocus(s: string): Focus {
 function parsePipe2(s: string): { label: string; value: string } {
   const [label = "", value = ""] = s.split("|").map((x) => x.trim());
   return { label, value };
+}
+
+function parsePipePeer(s: string): Peer {
+  const [code = "", name = "", relation = "", note = ""] = s
+    .split("|")
+    .map((x) => x.trim());
+  return { code, name, relation, note };
 }
 
 function parsePipeLevel(s: string): {
@@ -150,7 +165,7 @@ export async function loadEntities(): Promise<Record<string, Entity>> {
     SELECT ticker, name, exchange, status,
            price, change_pct, pe_ttm, pct,
            upper_bound, lower_bound,
-           thesis, catalysts, risks, metrics, levels, links,
+           thesis, peers, catalysts, risks, metrics, levels, links,
            updated_at::text AS updated_at
     FROM entities
   `) as Record<string, unknown>[];
@@ -166,6 +181,7 @@ export async function loadEntities(): Promise<Record<string, Entity>> {
       trend: trendFromChange(change),
       status: ((row.status as Status) ?? "观察") as Status,
       thesis: ((row.thesis as string) ?? "").trim(),
+      peers: ((row.peers as string[]) ?? []).map(parsePipePeer),
       metrics: ((row.metrics as string[]) ?? []).map(parsePipe2),
       levels: ((row.levels as string[]) ?? []).map(parsePipeLevel),
       catalysts: (row.catalysts as string[]) ?? [],

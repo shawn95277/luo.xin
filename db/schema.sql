@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS entities (
   upper_bound NUMERIC,
   lower_bound NUMERIC,
   thesis      TEXT,
+  peers       TEXT[] NOT NULL DEFAULT '{}',
   catalysts   TEXT[] NOT NULL DEFAULT '{}',
   risks       TEXT[] NOT NULL DEFAULT '{}',
   metrics     TEXT[] NOT NULL DEFAULT '{}',
@@ -44,3 +45,4 @@ CREATE INDEX IF NOT EXISTS idx_reviews_tickers ON reviews USING GIN (tickers);
 -- Additive migrations for already-existing tables
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS body_notes TEXT;
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS body_tomorrow TEXT;
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS peers TEXT[] NOT NULL DEFAULT '{}';

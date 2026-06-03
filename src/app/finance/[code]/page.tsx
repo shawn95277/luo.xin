@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import {
   ArrowDownRight,
   ArrowLeft,
+  ArrowUpRight,
   Check,
   CircleSlash,
   ExternalLink,
@@ -110,35 +111,37 @@ export default async function EntityPage({
           </p>
         </header>
 
-        <section className="mt-16">
-          <Eyebrow>关键价位</Eyebrow>
-          <h2 className="mt-2 font-serif text-2xl font-medium tracking-tight">
-            加减仓触发线
-          </h2>
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            {entity.levels.map((lv) => (
-              <div
-                key={lv.value}
-                className={`rounded-2xl border p-5 ${
-                  lv.type === "上方"
-                    ? "border-emerald-500/30 bg-emerald-500/[0.04]"
-                    : "border-rose-500/30 bg-rose-500/[0.04]"
-                }`}
-              >
-                <Eyebrow>{lv.label}</Eyebrow>
+        {entity.levels.length > 0 && (
+          <section className="mt-16">
+            <Eyebrow>关键价位</Eyebrow>
+            <h2 className="mt-2 font-serif text-2xl font-medium tracking-tight">
+              加减仓触发线
+            </h2>
+            <div className="mt-6 grid gap-3 sm:grid-cols-3">
+              {entity.levels.map((lv) => (
                 <div
-                  className={`mt-2 font-mono text-3xl font-medium tabular-nums ${
+                  key={lv.value}
+                  className={`rounded-2xl border p-5 ${
                     lv.type === "上方"
-                      ? "text-emerald-700 dark:text-emerald-400"
-                      : "text-rose-700 dark:text-rose-400"
+                      ? "border-emerald-500/30 bg-emerald-500/[0.04]"
+                      : "border-rose-500/30 bg-rose-500/[0.04]"
                   }`}
                 >
-                  {lv.type === "上方" ? "↑" : "↓"} {lv.value}
+                  <Eyebrow>{lv.label}</Eyebrow>
+                  <div
+                    className={`mt-2 font-mono text-3xl font-medium tabular-nums ${
+                      lv.type === "上方"
+                        ? "text-emerald-700 dark:text-emerald-400"
+                        : "text-rose-700 dark:text-rose-400"
+                    }`}
+                  >
+                    {lv.type === "上方" ? "↑" : "↓"} {lv.value}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="mt-16">
           <Eyebrow>关键指标</Eyebrow>
@@ -158,6 +161,77 @@ export default async function EntityPage({
             ))}
           </dl>
         </section>
+
+        {entity.peers.length > 0 && (
+          <section className="mt-16">
+            <Eyebrow>竞品与同业</Eyebrow>
+            <h2 className="mt-2 font-serif text-2xl font-medium tracking-tight">
+              可比标的
+            </h2>
+            <ul className="mt-6 divide-y divide-border border-y border-border">
+              {entity.peers.map((peer) => {
+                const peerEntity = entities[peer.code];
+                const inner = (
+                  <>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                        <span className="font-serif text-lg font-medium">
+                          {peer.name}
+                        </span>
+                        <span className="font-mono text-xs text-muted-foreground tabular-nums">
+                          {peer.code}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {peer.relation}
+                        </span>
+                      </div>
+                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                        {peer.note}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-3 text-right">
+                      {peerEntity ? (
+                        <>
+                          <div className="hidden sm:block">
+                            <div className="font-mono text-sm font-semibold tabular-nums">
+                              {peerEntity.price}
+                            </div>
+                            <div
+                              className={`mt-0.5 font-mono text-xs tabular-nums ${trendColor(peerEntity.trend)}`}
+                            >
+                              {peerEntity.change || "—"}
+                            </div>
+                          </div>
+                          <ArrowUpRight className="size-4 text-muted-foreground" />
+                        </>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">
+                          待建档
+                        </span>
+                      )}
+                    </div>
+                  </>
+                );
+                return (
+                  <li key={peer.code}>
+                    {peerEntity ? (
+                      <Link
+                        href={`/finance/${peer.code}`}
+                        className="flex items-center justify-between gap-4 py-4 transition-colors hover:text-foreground"
+                      >
+                        {inner}
+                      </Link>
+                    ) : (
+                      <div className="flex items-center justify-between gap-4 py-4">
+                        {inner}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
 
         <section className="mt-16 grid gap-8 sm:grid-cols-2">
           <div>
